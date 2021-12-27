@@ -1,0 +1,485 @@
+title Snake Corrida
+author Didmar
+homepage www.puzzlescript.net
+verbose_logging
+
+========
+OBJECTS
+========
+
+Background
+darkgreen grey
+11111
+01111
+11101
+11111
+10111
+
+
+Wall
+BROWN DARKBROWN
+00010
+11111
+01000
+11111
+00010
+
+Snake1_head
+red lightgreen
+.111.
+10101
+11111
+11111
+.111.
+
+Snake1_u
+green red
+00000
+00100
+01010
+00000
+00000
+
+Snake1_d
+green red
+00000
+00000
+01010
+00100
+00000
+
+Snake1_l
+green red
+00000
+00100
+01000
+00100
+00000
+
+Snake1_r
+green red
+00000
+00100
+00010
+00100
+00000
+
+Snake1_tail
+green red
+00000
+00100
+01010
+00100
+00000
+
+Snake2_head
+lightred lightgreen
+.111.
+10101
+11111
+11111
+.111.
+
+Snake2_u
+green lightred
+00000
+00100
+01010
+00000
+00000
+
+Snake2_d
+green lightred
+00000
+00000
+01010
+00100
+00000
+
+Snake2_l
+green lightred
+00000
+00100
+01000
+00100
+00000
+
+Snake2_r
+green lightred
+00000
+00100
+00010
+00100
+00000
+
+Snake2_tail
+green lightred
+00000
+00100
+01010
+00100
+00000
+
+DeadSnake
+lightgreen
+.....
+.....
+.000.
+00000
+.000.
+
+Fruit
+lightred red yellow
+..11.
+.202.
+20002
+20002
+.222.
+
+
+Player
+#000000 #212121 #ef9a9a #795548 #1a237e #9e9e9e
+0000.
+0121.
+0222.
+34443
+35553
+
+DeadPlayer
+#000000 #212121 red #795548 #1a237e #9e9e9e
+0000.
+0121.
+0222.
+34443
+35553
+
+Exit
+grey black brown
+01110
+12221
+12221
+12221
+12221
+
+(---Path finding stuff---)
+
+Path1
+#FFAAAA
+00000
+0...0
+0...0
+0...0
+00000
+
+Path2
+#55FF55
+00000
+0...0
+0...0
+0...0
+00000
+
+Path3
+#0000FF
+00000
+0...0
+0...0
+0...0
+00000
+
+RightPath
+Blue
+.....
+.....
+..0..
+.....
+.....
+
+Snake1_NextMove
+red
+.....
+.0.0.
+.....
+.0.0.
+.....
+
+Snake2_NextMove
+lightred
+.....
+..0..
+.0.0.
+..0..
+.....
+
+Cursor
+black
+..0..
+..0..
+00000
+..0..
+..0..
+
+=======
+LEGEND
+=======
+
+. = Background
+# = Wall
+E = Exit
+* = Fruit
+
+P = Player
+
+1 = Snake1_head
+u = Snake1_u
+d = Snake1_d
+l = Snake1_l
+r = Snake1_r
+t = Snake1_tail
+
+2 = Snake2_head
+y = Snake2_u
+h = Snake2_d
+g = Snake2_l
+j = Snake2_r
+n = Snake2_tail
+
+Obstacle = Wall
+Snake_head = Snake1_head or Snake2_head (Alias for snake heads)
+Snake = Snake1_head or Snake1_l or Snake1_r or Snake1_d or Snake1_u or Snake1_tail or Snake2_head or Snake2_l or Snake2_r or Snake2_d or Snake2_u or Snake2_tail
+Path = Path1 or Path2 or Path3
+
+=======
+SOUNDS
+=======
+
+sfx0 25131303
+
+================
+COLLISIONLAYERS
+================
+
+Background
+Exit
+DeadSnake
+Player
+Snake1_head, Snake1_l, Snake1_r, Snake1_d, Snake1_u, Snake1_tail, Snake2_head, Snake2_l, Snake2_r, Snake2_d, Snake2_u, Snake2_tail, Wall, Fruit, DeadPlayer
+Path1, Path2, Path3
+RightPath
+Snake1_NextMove
+Snake2_NextMove
+Cursor
+
+======
+RULES     
+======     
+
+(---Player moves---)
+
+(Player can't move on)
+[ > Player | Wall ] -> [ Player | Wall ]
+[ > Player | Snake1_head ] -> [ Player | Snake1_head ]
+[ > Player | Snake1_l ] -> [ Player | Snake1_l ]
+[ > Player | Snake1_r ] -> [ Player | Snake1_r ]
+[ > Player | Snake1_u ] -> [ Player | Snake1_u ]
+[ > Player | Snake1_d ] -> [ Player | Snake1_d ]
+[ > Player | Snake1_tail ] -> [ Player | Snake1_tail ]
+[ > Player | Snake2_head ] -> [ Player | Snake2_head ]
+[ > Player | Snake2_l ] -> [ Player | Snake2_l ]
+[ > Player | Snake2_r ] -> [ Player | Snake2_r ]
+[ > Player | Snake2_u ] -> [ Player | Snake2_u ]
+[ > Player | Snake2_d ] -> [ Player | Snake2_d ]
+[ > Player | Snake2_tail ] -> [ Player | Snake2_tail ]
+
+(Player can push fruit)
+[ > Player | Fruit ] -> [ > Player | > Fruit ]
+
+
+
+(---Snake1 path finding logic---)
+
+[ Player ][ Snake1_head | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Snake1_head | Path1 ]
+
+startloop
+ [ Player Path1 ] -> [ Player Path1 ]
+ 
+ [ Player ][ Path1 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
+ [ Player Path2 ] -> [ Player Path2 ]
+ 
+ [ Player ][ Path2 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
+ [ Player Path3 ] -> [ Player Path3 ]
+ 
+ [ Player ][ Path3 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
+endloop
+
+
+( If not found, deleting all pathes )
+[ Player ][ no Path ] -> [ Player ][ ]
+
+
+( Tracing back to the player )
+[ Player Path ] -> [ Player Path RightPath ]
+
+startloop
+ [ Path3 RightPath | Path2 ] -> [ RightPath | Path2 RightPath ]
+ [ Path2 RightPath | Path1 ] -> [ RightPath | Path1 RightPath ]
+ [ Path1 RightPath | Path3 ] -> [ RightPath | Path3 RightPath ]
+endloop
+
+
+( Cleaning up and starting the movement )
+[ Path ] -> [ ]
+[ Snake1_head | RightPath ] -> [ Snake1_head | Snake1_NextMove ]
+[ RightPath ] -> [ ]
+
+
+
+(---Snake2 path finding logic---)
+
+[ Player ][ Snake2_head | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail  ] -> [ Player ][ Snake2_head | Path1 ]
+
+startloop
+ [ Player Path1 ] -> [ Player Path1 ]
+ 
+ [ Player ][ Path1 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
+ [ Player Path2 ] -> [ Player Path2 ]
+ 
+ [ Player ][ Path2 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
+ [ Player Path3 ] -> [ Player Path3 ]
+ 
+ [ Player ][ Path3 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
+endloop
+
+
+( If not found, deleting all pathes )
+[ Player ][ no Path ] -> [ Player ][ ]
+
+
+( Tracing back to the player )
+[ Player Path ] -> [ Player Path RightPath ]
+
+startloop
+ [ Path3 RightPath | Path2 ] -> [ RightPath | Path2 RightPath ]
+ [ Path2 RightPath | Path1 ] -> [ RightPath | Path1 RightPath ]
+ [ Path1 RightPath | Path3 ] -> [ RightPath | Path3 RightPath ]
+endloop
+
+
+( Cleaning up and starting the movement )
+[ Path ] -> [ ]
+[ Snake2_head | RightPath ] -> [ Snake2_head | Snake2_NextMove ]
+[ RightPath ] -> [ ]
+
+
+
+(---Move all snakes---)
+
+(Handle collision between snake heads, killing them)
+[ Snake1_tail ][ Snake1_NextMove Snake2_NextMove ][ Snake2_tail ] -> [ ][ DeadSnake ][]
+
+startloop
+[ DeadSnake][ Snake ] -> [ DeadSnake ][ DeadSnake ]
+endloop
+
+
+(movement of Snake1)
+up    [Snake1_head|Snake1_NextMove] -> [Snake1_u Cursor| Snake1_head]
+down    [Snake1_head|Snake1_NextMove] -> [Snake1_d Cursor| Snake1_head]
+left    [Snake1_head|Snake1_NextMove] -> [Snake1_l Cursor| Snake1_head]
+right    [Snake1_head|Snake1_NextMove] -> [Snake1_r Cursor| Snake1_head]
+
+startloop
+up [ Snake1_u | Cursor] -> [ Snake1_u Cursor | no Cursor]
+down [ Snake1_d | Cursor] -> [ Snake1_d Cursor | no Cursor]
+left [ Snake1_l | Cursor] -> [ Snake1_l Cursor | no Cursor]
+right [ Snake1_r | Cursor] -> [  Snake1_r Cursor | no Cursor]
+[ Snake1_tail | Cursor] -> [ | Snake1_tail no Cursor]
+endloop
+
+
+
+
+(movement of Snake2)
+up    [Snake2_head|Snake2_NextMove] -> [Snake2_u Cursor| Snake2_head]
+down    [Snake2_head|Snake2_NextMove] -> [Snake2_d Cursor| Snake2_head]
+left    [Snake2_head|Snake2_NextMove] -> [Snake2_l Cursor| Snake2_head]
+right    [Snake2_head|Snake2_NextMove] -> [Snake2_r Cursor| Snake2_head]
+
+startloop
+up [ Snake2_u | Cursor] -> [ Snake2_u Cursor | no Cursor]
+down [ Snake2_d | Cursor] -> [ Snake2_d Cursor | no Cursor]
+left [ Snake2_l | Cursor] -> [ Snake2_l Cursor | no Cursor]
+right [ Snake2_r | Cursor] -> [  Snake2_r Cursor | no Cursor]
+[ Snake2_tail | Cursor] -> [ | Snake2_tail no Cursor]
+endloop
+
+
+(---Winning and losing---)
+
+( Player dies if overlap a snake head )
+late [ Player Snake_head ] -> [ DeadPlayer ]
+
+( Player wins if on Exit )
+late [ Player Exit ] -> [ Player ] win
+
+
+==============
+WINCONDITIONS
+==============
+
+=======     
+LEVELS
+=======
+
+(
+(Easy)
+########
+#P....E#
+#.######
+#..1llt#
+########
+
+(Dogging a snake)
+##########
+#P..1lltE#
+#.#......#
+#........#
+##########
+
+(Dogging snakes #1)
+##########
+#.jj2....#
+#.y..E1..#
+#Pygn.u..#
+#...tru..#
+#........#
+##########
+
+(Dogging snakes #2)
+##########
+#....#####
+#.#.P.1tE#
+#....#####
+##.....2n#
+##########
+
+(Snake collision #1)
+##############
+######.#######
+######.#######
+#trr1.P.2ggnE#
+######.#######
+######.#######
+##############
+
+(Snake collision #2)
+##############
+#######..2####
+#######.#y####
+#####...#y####
+#####.#P#y####
+##......#y####
+##.######n####
+##...1llltE###
+##############
+)

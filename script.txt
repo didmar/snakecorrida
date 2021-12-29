@@ -120,7 +120,15 @@ green lightred
 00100
 00000
 
-DeadSnake
+DeadSnake1
+lightgreen
+.....
+.....
+.000.
+00000
+.000.
+
+DeadSnake2
 lightgreen
 .....
 .....
@@ -160,6 +168,38 @@ grey black brown
 12221
 12221
 12221
+
+GridDown
+black
+.0.0.
+00000
+.0.0.
+00000
+.0.0.
+
+GridUp
+black
+.....
+.....
+.....
+.....
+.....
+
+PlateOff
+lightred darkgray
+.....
+.111.
+.101.
+.111.
+.....
+
+PlateOn
+lightgreen darkgray
+.....
+.111.
+.101.
+.111.
+.....
 
 (---Path finding stuff---)
 
@@ -219,6 +259,14 @@ black
 ..0..
 ..0..
 
+Rock
+brown
+.000.
+00000
+00000
+00000
+.000.
+
 =======
 LEGEND
 =======
@@ -227,6 +275,9 @@ LEGEND
 # = Wall
 E = Exit
 * = Fruit
+k = Rock
+x = GridDown
+- = PlateOff
 
 P = Player
 
@@ -244,37 +295,55 @@ g = Snake2_l
 j = Snake2_r
 n = Snake2_tail
 
-Obstacle = Wall
 Snake_head = Snake1_head or Snake2_head (Alias for snake heads)
 Snake = Snake1_head or Snake1_l or Snake1_r or Snake1_d or Snake1_u or Snake1_tail or Snake2_head or Snake2_l or Snake2_r or Snake2_d or Snake2_u or Snake2_tail
+Snake1 = Snake1_head or Snake1_l or Snake1_r or Snake1_d or Snake1_u or Snake1_tail
+Snake2 = Snake2_head or Snake2_l or Snake2_r or Snake2_d or Snake2_u or Snake2_tail
 Path = Path1 or Path2 or Path3
+
+Weight = Snake or Player or Rock or DeadSnake1 or DeadSnake2
 
 =======
 SOUNDS
 =======
 
-sfx0 25131303
+DeadPlayer create 66023704
+
+DeadSnake1 create 78421501
+DeadSnake2 create 78421501
+
+Rock move 27381507 (push rock)
+
+sfx0 3585306 (plate activated)
+
+sfx1 50349106 (plate deactivated)
+
+GridUp create 16879905
+
+(GridDown create 16879903)
 
 ================
 COLLISIONLAYERS
 ================
 
 Background
-Exit
-DeadSnake
-Player
-Snake1_head, Snake1_l, Snake1_r, Snake1_d, Snake1_u, Snake1_tail, Snake2_head, Snake2_l, Snake2_r, Snake2_d, Snake2_u, Snake2_tail, Wall, Fruit, DeadPlayer
+DeadSnake1
+DeadSnake2
+Exit, PlateOff, PlateOn
+Player, Rock, DeadPlayer, Wall, GridDown, Fruit
+Snake1_head, Snake1_l, Snake1_r, Snake1_d, Snake1_u, Snake1_tail, Snake2_head, Snake2_l, Snake2_r, Snake2_d, Snake2_u, Snake2_tail
 Path1, Path2, Path3
 RightPath
 Snake1_NextMove
 Snake2_NextMove
 Cursor
+GridUp
 
 ======
 RULES     
 ======     
 
-(---Player moves---)
+(---Player moves----------------------------------------------------------------------------)
 
 (Player can't move on)
 [ > Player | Wall ] -> [ Player | Wall ]
@@ -291,25 +360,27 @@ RULES
 [ > Player | Snake2_d ] -> [ Player | Snake2_d ]
 [ > Player | Snake2_tail ] -> [ Player | Snake2_tail ]
 
-(Player can push fruit)
+(Player can push fruits and rocks)
 [ > Player | Fruit ] -> [ > Player | > Fruit ]
+[ > Player | Rock | Snake1 ] -> [ > Player | > Rock | DeadSnake1 ]
+[ > Player | Rock | Snake2 ] -> [ > Player | > Rock | DeadSnake2 ]
+[ > Player | Rock ] -> [ > Player | > Rock ]
 
 
+(---Snake1 path finding logic---------------------------------------------------------------)
 
-(---Snake1 path finding logic---)
-
-[ Player ][ Snake1_head | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Snake1_head | Path1 ]
+[ Player ][ Snake1_head | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Snake1_head | Path1 ]
 
 startloop
  [ Player Path1 ] -> [ Player Path1 ]
  
- [ Player ][ Path1 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
+ [ Player ][ Path1 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
  [ Player Path2 ] -> [ Player Path2 ]
  
- [ Player ][ Path2 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
+ [ Player ][ Path2 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
  [ Player Path3 ] -> [ Player Path3 ]
  
- [ Player ][ Path3 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
+ [ Player ][ Path3 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
 endloop
 
 
@@ -329,25 +400,23 @@ endloop
 
 ( Cleaning up and starting the movement )
 [ Path ] -> [ ]
-[ Snake1_head | RightPath ] -> [ Snake1_head | Snake1_NextMove ]
+[ Snake1_head | RightPath no GridDown] -> [ Snake1_head | Snake1_NextMove ]
 [ RightPath ] -> [ ]
 
+(---Snake2 path finding logic------------------------------------------------------------)
 
-
-(---Snake2 path finding logic---)
-
-[ Player ][ Snake2_head | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail  ] -> [ Player ][ Snake2_head | Path1 ]
+[ Player ][ Snake2_head | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail  ] -> [ Player ][ Snake2_head | Path1 ]
 
 startloop
  [ Player Path1 ] -> [ Player Path1 ]
  
- [ Player ][ Path1 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
+ [ Player ][ Path1 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path3 ] -> [ Player ][ Path1 | Path2 ]
  [ Player Path2 ] -> [ Player Path2 ]
  
- [ Player ][ Path2 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
+ [ Player ][ Path2 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path1 ] -> [ Player ][ Path2 | Path3 ]
  [ Player Path3 ] -> [ Player Path3 ]
  
- [ Player ][ Path3 | no Obstacle no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
+ [ Player ][ Path3 | no Wall no Rock no Snake1_head no Snake1_l no Snake1_r no Snake1_u no Snake1_d no Snake1_tail no Snake2_head no Snake2_l no Snake2_r no Snake2_u no Snake2_d no Snake2_tail no Path2 ] -> [ Player ][ Path3 | Path1 ]
 endloop
 
 
@@ -367,18 +436,19 @@ endloop
 
 ( Cleaning up and starting the movement )
 [ Path ] -> [ ]
-[ Snake2_head | RightPath ] -> [ Snake2_head | Snake2_NextMove ]
+[ Snake2_head | RightPath no GridDown] -> [ Snake2_head | Snake2_NextMove ]
 [ RightPath ] -> [ ]
 
 
-
-(---Move all snakes---)
+(---Move all snakes-------------------------------------------------------------------------)
 
 (Handle collision between snake heads, killing them)
-[ Snake1_tail ][ Snake1_NextMove Snake2_NextMove ][ Snake2_tail ] -> [ ][ DeadSnake ][]
+[ Snake1_tail ][ Snake1_NextMove Snake2_NextMove ][ Snake2_tail ] -> [ ][ DeadSnake1 DeadSnake2 ][]
 
+(Propagate the DeadSnake state to all the snake parts)
 startloop
-[ DeadSnake][ Snake ] -> [ DeadSnake ][ DeadSnake ]
+[ DeadSnake1 ][ Snake1 ] -> [ DeadSnake1 ][ DeadSnake1 ]
+[ DeadSnake2 ][ Snake2 ] -> [ DeadSnake2 ][ DeadSnake2 ]
 endloop
 
 
@@ -397,8 +467,6 @@ right [ Snake1_r | Cursor] -> [  Snake1_r Cursor | no Cursor]
 endloop
 
 
-
-
 (movement of Snake2)
 up    [Snake2_head|Snake2_NextMove] -> [Snake2_u Cursor| Snake2_head]
 down    [Snake2_head|Snake2_NextMove] -> [Snake2_d Cursor| Snake2_head]
@@ -413,25 +481,53 @@ right [ Snake2_r | Cursor] -> [  Snake2_r Cursor | no Cursor]
 [ Snake2_tail | Cursor] -> [ | Snake2_tail no Cursor]
 endloop
 
+(---Plate logic-----------------------------------------------------------------------------)
+[PlateOff Player] -> [PlateOn Player]
+[PlateOff Snake1_head] -> [PlateOn Snake1_head]
+[PlateOff Snake1_l] -> [PlateOn Snake1_l]
+[PlateOff Snake1_r] -> [PlateOn Snake1_r]
+[PlateOff Snake1_d] -> [PlateOn Snake1_d]
+[PlateOff Snake1_u] -> [PlateOn Snake1_u]
+[PlateOff Snake1_tail] -> [PlateOn Snake1_tail]
+[PlateOff Snake2_head] -> [PlateOn Snake2_head]
+[PlateOff Snake2_l] -> [PlateOn Snake2_l]
+[PlateOff Snake2_r] -> [PlateOn Snake2_r]
+[PlateOff Snake2_d] -> [PlateOn Snake2_d]
+[PlateOff Snake2_u] -> [PlateOn Snake2_u]
+[PlateOff Snake2_tail] -> [PlateOn Snake2_tail]
+[PlateOff Rock] -> [PlateOn Rock]
 
-(---Winning and losing---)
+(Some weight must staying on the plate to keep it activated) 
+[PlateOn no Weight] -> [PlateOff] sfx1
+(If there are 2 plates, both must be activated at the same time)
+[PlateOn][PlateOff] -> [PlateOff][PlateOff]
 
-( Player dies if overlap a snake head )
-late [ Player Snake_head ] -> [ DeadPlayer ]
+(Activated plates cause grids to lift up)
+[PlateOn][GridDown] -> [PlateOn][GridUp]
+late [PlateOff][GridUp no Weight] -> [PlateOff][GridDown]
 
-( Player wins if on Exit )
-late [ Player Exit ] -> [ Player ] win
+
+(---Losing conditions-----------------------------------------------------------------------)
+late [ Player Snake ] -> [ DeadPlayer ]
+
+
+(---Cleanup---------------------------------------------------------------------------------)
+[ Snake1_NextMove ] -> [ ]
+[ Snake2_NextMove ] -> [ ]
+[ Cursor ] -> [ ]
 
 
 ==============
 WINCONDITIONS
 ==============
 
+All Player on Exit
+no DeadPlayer
+
 =======     
 LEVELS
 =======
 
-(
 (Easy)
 ########
 #P....E#
@@ -482,4 +578,69 @@ LEVELS
 ##.######n####
 ##...1llltE###
 ##############
-)
+
+(Rock #1)
+###########
+#P.k1lltE.#
+###########
+
+(Rock #2)
+############
+###.########
+#P...1lltE2#
+#.#k######y#
+#...####njy#
+############
+
+(Grids and plates #1)
+#############
+#......######
+#t1###.-...E#
+#..x.P.######
+#############
+
+(Grids and plates #2)
+##########
+#.x..xxEx#
+#.x.-#.x.#
+#.x....x.#
+#.xt#.1k.#
+#.xrrruxP#
+#.xxxxxx.#
+#........#
+##########
+
+(Grids and plates #3)
+##########
+#........#
+#..Pk....#
+#xxxxxx#k#
+#-.1lltE-#
+##########
+
+(Grids and plates #4)
+#############
+#...P.......#
+#.####x####.#
+#.#njjj2..#.#
+#.#.#####.#.#
+#.#.#####.#.#
+#.x..-E-..x.#
+#.#.#####k#.#
+#.#.#####.#.#
+#.#.......#.#
+#.####x####.#
+#.....1lllt.#
+#############
+
+(Grids and plates #2B)
+##########
+########E#
+#.x..xxxx#
+#.x.-#.x.#
+#.x....x.#
+#.x.#.1k.#
+#.x..tuxP#
+#.xxxxxx.#
+#........#
+##########
